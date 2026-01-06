@@ -63,7 +63,7 @@ We use a subset of feature purpose built for a future screening use case, while 
 **Leakage and Redundancy**
 To prevent leakage and redundancy we used the correlation heatmap to inspect relationships among key variables, and we observed that `audit_score_q1` and `audit_score_q2` are strongly aligned between them and with `compliance_score_final`.
 
-![](Heatmap.png)
+![](images/Heatmap.png)
 
 | feature_1       | feature_2               | corr     |
 |----------------|--------------------------|----------|
@@ -92,7 +92,7 @@ Instead, we adopted an imputation strategy:
 Regarding outliers and highly skewed variables, we deliberately chose to not remove them because in a compliance setting extreme case can be very informative, as in the case 'training_hours_quarterly' (as shown in the figure below): they may indicate problematic departments and it is important that we detect them. For this reason, we did not apply outlier filtering, we just  control the impact of different numeric scales by standardizing numeric features as we have already explained.  
 
 
-![](training_hours_quarterly.png)
+![](images/training_hours_quarterly.png)
 
 
   
@@ -115,7 +115,7 @@ We implemented a consistent clustering pipeline (same inputs, encoding, and scal
 
 2) **Agglomerative Clustering** as hierarchical alternative and because often yields stable, interpretable partitions
 
-3) **DBSCAN ** a density-based method that can explicitly label atypical observations as noise/outliers, which is particularly relevant in compliance contexts where rare extreme departments may warrant special attention 
+3) **DBSCAN** a density-based method that can explicitly label atypical observations as noise/outliers, which is particularly relevant in compliance contexts where rare extreme departments may warrant special attention 
 
 For each method, we assigned a cluster label to every department (or a noise label for DBSCAN) and then linked these labels back to the original department table to support interpretation. We performed **cluster profiling** by summarizing the key numeric and categorical features within each cluster and comparing patterns across clusters, with the goal of translating purely geometric groups into compliance-relevant “risk typologies”.
 
@@ -209,16 +209,16 @@ The results indicate that compliance risk is highly concentrated and structurall
 
 The variable `compliance_score_final` 
 
-![](compliance_score_final.png)
+![](images/compliance_score_final.png)
 
 exhibits a wide range of values (as we can see from the barplot), with most departments concentrated at relatively high scores and a non-negligible tail showing markedly lower compliance performance. Similarly, `reporting_gaps_annual`
 
-![](reporting_gaps_annual.png)
+![](images/reporting_gaps_annual.png)
 
 
 displays a strongly right-skewed distribution, indicating that while many departments exhibit limited process weaknesses, a small subset experiences pronounced structural gaps. Incident-related variables such as `violations_past_3years`
 
-![](violations_past_3years.png)
+![](images/violations_past_3years.png)
 
 further reinforce this pattern, with a limited number of departments accounting for a disproportionate share of total incidents. Taken together, these distributions suggest that compliance risk is unevenly distributed and concentrated among structurally distinct departments, motivating the use of segmentation techniques to uncover underlying risk profiles.
 
@@ -382,7 +382,7 @@ within 90 days
 **PCA**
 To further assess the robustness and interpretability of the clustering results, a Principal Component Analysis (PCA) projection was used to visualize departments in a lower-dimensional space. In particular,PCA underlines high-risk clusters that remain clearly distinguishable from low-risk clusters in the PCA space, providing additional evidence that the identified segmentation reflects genuine structural differences rather than artifacts of high-dimensional geometry.
 
-![](PCA_KMeans.png)
+![](images/PCA_KMeans.png)
 
 
 The segmentation results provide several important insights into the structure of compliance risk within the organization.
@@ -496,7 +496,7 @@ From our analysis, a few conclusions stand out:
 Despite our in depth analysis and use of various methods, naturally some questions will remain not fully answered. The clustering results indicate that although risk profiles are meaningful, they are not perfectly divisible. It is possible that a significant portion of departments can be near cluster boundaries, this can lead to an overlap between risk profiles and even potential sensitivity to feature selection or preprocessing choices. Secondly, our supervised label, `y_high_risk`, is based on a percentile threshold (bottom 25% of `compliance_score_final`), which is a practical rule of thumb rather than an absolute truth. In practice, organizations might want to adjust this definition based on practical constraints for instance, audit capacity, cost of false negatives vs false positives, and evaluate how different thresholds change results. In addition to that an organization might have the actual share of departments labeled high-risk higher than 25%, as our case due to ties around the threshold.
 The model is useful for screening but not definitive: it still misses some truly high-risk departments, and most false positives are borderline cases. This limitation means predictions should support prioritization and be reviewed by humans.
 
-![](CM_predition_test.png)
+![](images/CM_predition_test.png)
 
 
 Future work should therefore focus on testing the stability of clusters under minor changes, for example, alternative feature sets and resampling-based stability checks, while keeping ethical safeguards central: outputs should support human review rather than automate sanctions, avoid stigmatizing departments, and be revisited over time to prevent governance drift.
